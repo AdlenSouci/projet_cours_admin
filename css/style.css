@@ -573,7 +573,7 @@ h4 {
 }
 
 .admin-container {
-    max-width: 600px;
+    max-width: 1200px;
     padding: 4rem 2rem;
 }
 
@@ -582,7 +582,6 @@ h4 {
     padding: 2rem;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    margin-bottom: 2rem;
 }
 
 .admin-card h2 {
