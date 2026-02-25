@@ -104,14 +104,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const apiCall = async (endpoint, method = 'GET', body = null) => {
         const token = localStorage.getItem('ghToken');
 
-        const url = `https://api.github.com/repos/${TARGET_OWNER}/${TARGET_REPO}${endpoint}`;
+        // Ajout d'un timestamp forcé pour complètement contourner le cache API côté administration
+        const separator = endpoint.includes('?') ? '&' : '?';
+        const url = `https://api.github.com/repos/${TARGET_OWNER}/${TARGET_REPO}${endpoint}${separator}t=${new Date().getTime()}`;
+
         const headers = {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'If-None-Match': '' // Force GitHub à ne pas utiliser l'ETAG en cache
         };
 
-        const config = { method, headers };
+        const config = { method, headers, cache: 'no-store' };
         if (body) config.body = JSON.stringify(body);
 
         const response = await fetch(url, config);
