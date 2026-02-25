@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM Elements ---
     const loginSection = document.getElementById('loginSection');
+    const dashboardGrid = document.getElementById('dashboardGrid');
     const uploadSection = document.getElementById('uploadSection');
     const manageSection = document.getElementById('manageSection');
     const courseListContainer = document.getElementById('courseListContainer');
@@ -20,13 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (token) {
             loginSection.classList.add('hidden');
-            uploadSection.classList.remove('hidden');
-            manageSection.classList.remove('hidden');
+            dashboardGrid.classList.remove('hidden');
+            dashboardGrid.classList.add('admin-grid-active');
             fetchCourses();
         } else {
             loginSection.classList.remove('hidden');
-            uploadSection.classList.add('hidden');
-            manageSection.classList.add('hidden');
+            dashboardGrid.classList.add('hidden');
+            dashboardGrid.classList.remove('admin-grid-active');
         }
     };
 

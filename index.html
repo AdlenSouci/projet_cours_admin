@@ -52,65 +52,64 @@
             </form>
         </section>
 
-        <!-- Manage Section (Shown after login, at the top) -->
-        <section id="manageSection" class="admin-card hidden" style="margin-bottom: 2rem;">
-            <div class="upload-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h2><i data-lucide="list"></i> Vos cours en ligne</h2>
-                <button id="logoutBtn" class="btn-text text-danger"><i data-lucide="log-out"></i> Déconnexion</button>
-            </div>
-            <div id="courseListContainer" class="course-list"
-                style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
-                <!-- Filled by JS -->
-            </div>
-        </section>
+        <div id="dashboardGrid" class="hidden"
+            style="display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: start;">
 
-        <!-- Upload Section -->
-        <section id="uploadSection" class="admin-card hidden">
-            <div class="upload-header">
-                <h2><i data-lucide="upload-cloud"></i> Ajouter un nouveau cours</h2>
-            </div>
-            <form id="uploadForm" class="admin-form">
-                <div class="form-row">
+            <!-- Manage Section (Right on desktop) -->
+            <section id="manageSection" class="admin-card">
+                <div class="upload-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2><i data-lucide="list"></i> Vos cours en ligne</h2>
+                    <button id="logoutBtn" class="btn-text text-danger" title="Déconnexion"><i
+                            data-lucide="log-out"></i></button>
+                </div>
+                <div id="courseListContainer" class="course-list"
+                    style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; max-height: 600px; overflow-y: auto; padding-right: 5px;">
+                    <div class="spinner-small" style="margin: 0 auto;"></div>
+                </div>
+            </section>
+
+            <!-- Upload Section (Left on desktop) -->
+            <section id="uploadSection" class="admin-card">
+                <div class="upload-header">
+                    <h2><i data-lucide="upload-cloud"></i> Ajouter un cours</h2>
+                </div>
+                <form id="uploadForm" class="admin-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="courseTitle">Titre du cours</label>
+                            <input type="text" id="courseTitle" required placeholder="Ex: Les boucles en JS">
+                        </div>
+                        <div class="form-group">
+                            <label for="courseType">Type</label>
+                            <select id="courseType" required>
+                                <option value="cours">Leçon / Cours</option>
+                                <option value="quiz">Quiz</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="courseTitle">Titre du cours</label>
-                        <input type="text" id="courseTitle" required placeholder="Ex: Les boucles en JavaScript">
+                        <label for="courseDesc">Courte description</label>
+                        <textarea id="courseDesc" rows="2" required placeholder="De quoi parle ce cours ?"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="courseType">Type de document</label>
-                        <select id="courseType" required>
-                            <option value="cours">Leçon / Cours</option>
-                            <option value="quiz">Quiz</option>
-                        </select>
+
+                    <div class="form-group file-upload-group">
+                        <label for="courseFile">Fichier HTML généré (par l'IA)</label>
+                        <div class="file-area">
+                            <i data-lucide="file-code" class="file-icon"></i>
+                            <input type="file" id="courseFile" accept=".html" required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label for="courseDesc">Courte description</label>
-                    <textarea id="courseDesc" rows="3" required placeholder="De quoi parle ce cours ?"></textarea>
-                </div>
+                    <div id="uploadStatus" class="status-message hidden"></div>
 
-                <div class="form-group">
-                    <label for="courseDuration">Durée estimée (optionnel)</label>
-                    <input type="text" id="courseDuration" placeholder="Ex: 45 min">
-                </div>
+                    <button type="submit" id="submitCourseBtn" class="btn btn-primary btn-block">
+                        <i data-lucide="send"></i> Publier
+                    </button>
+                </form>
+            </section>
 
-                <div class="form-group file-upload-group">
-                    <label for="courseFile">Fichier HTML généré (par l'IA)</label>
-                    <div class="file-area">
-                        <i data-lucide="file-code" class="file-icon"></i>
-                        <input type="file" id="courseFile" accept=".html" required>
-                    </div>
-                </div>
-
-                <div id="uploadStatus" class="status-message hidden">
-                    <!-- Les messages de succès ou d'erreur s'afficheront ici -->
-                </div>
-
-                <button type="submit" id="submitCourseBtn" class="btn btn-primary btn-block">
-                    <i data-lucide="send"></i> Publier sur le site
-                </button>
-            </form>
-        </section>
+        </div>
 
     </main>
 
