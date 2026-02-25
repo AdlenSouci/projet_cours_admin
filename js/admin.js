@@ -24,13 +24,78 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    loginForm.addEventListener('submit', (e) => {
-        e.removeAttribute;
+    const showError = (message) => {
+        let errDiv = document.getElementById('loginError');
+        if (!errDiv) {
+            errDiv = document.createElement('div');
+            errDiv.id = 'loginError';
+            errDiv.className = 'status-message error';
+            errDiv.style.marginBottom = '1.5rem';
+            loginForm.insertBefore(errDiv, loginForm.firstChild);
+        }
+        errDiv.textContent = message;
+        errDiv.classList.remove('hidden');
+    };
+
+    const hideError = () => {
+        const errDiv = document.getElementById('loginError');
+        if (errDiv) errDiv.classList.add('hidden');
+    };
+
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        localStorage.setItem('ghOwner', document.getElementById('ghOwner').value.trim());
-        localStorage.setItem('ghRepo', document.getElementById('ghRepo').value.trim());
-        localStorage.setItem('ghToken', document.getElementById('ghToken').value.trim());
-        checkLogin();
+        hideError();
+
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<div class="spinner-small"></div> Vérification...';
+
+        const owner = document.getElementById('ghOwner').value.trim();
+        const repo = document.getElementById('ghRepo').value.trim();
+        const token = document.getElementById('ghToken').value.trim();
+
+        // Validation stricte
+        const validGitHubName = /^[a-zA-Z0-9_-]+$/;
+
+        if (!validGitHubName.test(owner)) {
+            return showError("Erreur : Le pseudo GitHub ne peut contenir que des lettres, chiffres et tirets. Pas d'espaces.");
+        }
+        if (!validGitHubName.test(repo)) {
+            return showError("Erreur : Le nom de dépôt ne peut contenir que des lettres, chiffres et tirets. Pas d'espaces.");
+        }
+        if (!token.startsWith('ghp_')) {
+            return showError("Erreur : Un Token Classic GitHub doit commencer par 'ghp_'.");
+        }
+
+        // Test de connexion GitHub API réel
+        try {
+            const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) throw new Error("Erreur : Ce Token GitHub est invalide ou expiré.");
+                if (response.status === 404) throw new Error("Erreur : Le dépôt est introuvable ou le Token n'a pas les droits 'repo'.");
+                throw new Error("Erreur lors de la vérification des accès.");
+            }
+
+            // Si ok, on sauvegarde
+            localStorage.setItem('ghOwner', owner);
+            localStorage.setItem('ghRepo', repo);
+            localStorage.setItem('ghToken', token);
+            checkLogin();
+
+        } catch (error) {
+            showError(error.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            lucide.createIcons();
+        }
     });
 
     logoutBtn.addEventListener('click', () => {
