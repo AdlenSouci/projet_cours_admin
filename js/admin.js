@@ -55,6 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (body) config.body = JSON.stringify(body);
 
         const response = await fetch(url, config);
+        // Si c'est un GET et une 404, on gère l'erreur silencieusement en renvoyant null
+        if (method === 'GET' && response.status === 404) {
+            return null;
+        }
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.message || 'Erreur API GitHub');
@@ -126,12 +130,14 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 // Try fetching existing cours.json
                 const jsonFile = await apiCall('/contents/data/cours.json');
-                const decodedJson = decodeURIComponent(escape(atob(jsonFile.content)));
-                coursJsonData = JSON.parse(decodedJson);
-                jsonSha = jsonFile.sha;
+                if (jsonFile && jsonFile.content) {
+                    const decodedJson = decodeURIComponent(escape(atob(jsonFile.content)));
+                    coursJsonData = JSON.parse(decodedJson);
+                    jsonSha = jsonFile.sha;
+                }
             } catch (err) {
-                // Ignore 404, file might not exist yet
-                console.warn("Pas de cours.json trouvé, création d'un nouveau.");
+                // Mauvais json ou erreur inattendue
+                console.warn("Erreur lors de la lecture du JSON existant:", err);
             }
 
             // Create new entry
