@@ -15,6 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const TARGET_OWNER = 'AdlenSouci';
     const TARGET_REPO = 'projet_cours_eleves';
 
+    // --- Synchronisation Instantanée avec l'onglet Élèves ---
+    const broadcastUpdate = (coursesList) => {
+        try {
+            localStorage.setItem('shared_courses_cache', JSON.stringify(coursesList));
+            new BroadcastChannel('cours_sync').postMessage(coursesList);
+        } catch (e) { console.warn("Sync error", e); }
+    };
+
     // --- GitHub Credentials logic ---
     const checkLogin = () => {
         const token = localStorage.getItem('ghToken');
@@ -171,6 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const decodedJson = decodeURIComponent(escape(atob(jsonFile.content)));
             const courses = JSON.parse(decodedJson);
 
+            broadcastUpdate(courses);
+
             if (courses.length === 0) {
                 courseListContainer.innerHTML = '<p class="text-center" style="color: var(--text-muted);">Aucun cours pour le moment.</p>';
                 return;
@@ -227,6 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 2. Filter out the course
             courses = courses.filter(c => c.id !== courseId);
+
+            // Broadcast immédiat pour faire disparaître chez l'élève SANS délai réseau
+            broadcastUpdate(courses);
 
             // 3. Update cours.json
             const jsonString = JSON.stringify(courses, null, 2);
@@ -327,6 +340,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             coursJsonData.unshift(newCourse); // Add to beginning
+
+            // Broadcast immédiat de l'ajout
+            broadcastUpdate(coursJsonData);
 
             // Base64 encode JSON
             const jsonString = JSON.stringify(coursJsonData, null, 2);
