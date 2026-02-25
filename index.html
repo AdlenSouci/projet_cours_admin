@@ -52,13 +52,23 @@
             </form>
         </section>
 
-        <!-- Upload Section (Hidden until logged in) -->
+        <!-- Manage Section (Shown after login, at the top) -->
+        <section id="manageSection" class="admin-card hidden" style="margin-bottom: 2rem;">
+            <div class="upload-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2><i data-lucide="list"></i> Vos cours en ligne</h2>
+                <button id="logoutBtn" class="btn-text text-danger"><i data-lucide="log-out"></i> Déconnexion</button>
+            </div>
+            <div id="courseListContainer" class="course-list"
+                style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- Filled by JS -->
+            </div>
+        </section>
+
+        <!-- Upload Section -->
         <section id="uploadSection" class="admin-card hidden">
             <div class="upload-header">
                 <h2><i data-lucide="upload-cloud"></i> Ajouter un nouveau cours</h2>
-                <button id="logoutBtn" class="btn-text text-danger"><i data-lucide="log-out"></i> Déconnexion</button>
             </div>
-
             <form id="uploadForm" class="admin-form">
                 <div class="form-row">
                     <div class="form-group">
@@ -99,16 +109,8 @@
                 <button type="submit" id="submitCourseBtn" class="btn btn-primary btn-block">
                     <i data-lucide="send"></i> Publier sur le site
                 </button>
-                <!-- Manage Section -->
-                <section id="manageSection" class="admin-card hidden" style="margin-top: 2rem;">
-                    <div class="upload-header">
-                        <h2><i data-lucide="list"></i> Gérer les cours existants</h2>
-                    </div>
-                    <div id="courseListContainer" class="course-list"
-                        style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <div class="spinner-small" style="margin: 0 auto;"></div>
-                    </div>
-                </section>
+            </form>
+        </section>
 
     </main>
 

@@ -52,16 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         hideError();
 
-        const submitBtn = loginForm.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<div class="spinner-small"></div> Vérification...';
-
         const token = document.getElementById('ghToken').value.trim();
 
         if (!token.startsWith('ghp_')) {
             return showError("Erreur : Ce jeton est invalide. Il doit commencer par 'ghp_'.");
         }
+
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<div class="spinner-small"></div> Vérification...';
 
         // Test de connexion GitHub API réel
         try {
