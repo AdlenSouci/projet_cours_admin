@@ -250,6 +250,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- File Selection Feedback ---
+    document.getElementById('courseFile').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            setStatus(`Fichier "${e.target.files[0].name}" prêt. Cliquez sur Publier.`, false);
+        } else {
+            statusMessage.classList.add('hidden');
+        }
+    });
+
     // --- Form Submission ---
     uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
