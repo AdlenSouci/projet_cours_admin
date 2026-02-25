@@ -9,13 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusMessage = document.getElementById('uploadStatus');
     const submitBtn = document.getElementById('submitCourseBtn');
 
+    const TARGET_OWNER = 'AdlenSouci';
+    const TARGET_REPO = 'projet_cours_eleves';
+
     // --- GitHub Credentials logic ---
     const checkLogin = () => {
         const token = localStorage.getItem('ghToken');
-        const owner = localStorage.getItem('ghOwner');
-        const repo = localStorage.getItem('ghRepo');
 
-        if (token && owner && repo) {
+        if (token) {
             loginSection.classList.add('hidden');
             uploadSection.classList.remove('hidden');
         } else {
@@ -51,26 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<div class="spinner-small"></div> Vérification...';
 
-        const owner = document.getElementById('ghOwner').value.trim();
-        const repo = document.getElementById('ghRepo').value.trim();
         const token = document.getElementById('ghToken').value.trim();
 
-        // Validation stricte
-        const validGitHubName = /^[a-zA-Z0-9_-]+$/;
-
-        if (!validGitHubName.test(owner)) {
-            return showError("Erreur : Le pseudo GitHub ne peut contenir que des lettres, chiffres et tirets. Pas d'espaces.");
-        }
-        if (!validGitHubName.test(repo)) {
-            return showError("Erreur : Le nom de dépôt ne peut contenir que des lettres, chiffres et tirets. Pas d'espaces.");
-        }
         if (!token.startsWith('ghp_')) {
-            return showError("Erreur : Un Token Classic GitHub doit commencer par 'ghp_'.");
+            return showError("Erreur : Ce jeton est invalide. Il doit commencer par 'ghp_'.");
         }
 
         // Test de connexion GitHub API réel
         try {
-            const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+            const response = await fetch(`https://api.github.com/repos/${TARGET_OWNER}/${TARGET_REPO}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/vnd.github.v3+json'
@@ -78,14 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                if (response.status === 401) throw new Error("Erreur : Ce Token GitHub est invalide ou expiré.");
-                if (response.status === 404) throw new Error("Erreur : Le dépôt est introuvable ou le Token n'a pas les droits 'repo'.");
-                throw new Error("Erreur lors de la vérification des accès.");
+                if (response.status === 401) throw new Error("Erreur : Le Token est invalide ou expiré.");
+                throw new Error("Erreur système lors de la vérification.");
             }
 
-            // Si ok, on sauvegarde
-            localStorage.setItem('ghOwner', owner);
-            localStorage.setItem('ghRepo', repo);
+            const data = await response.json();
+            if (!data.permissions || !data.permissions.push) {
+                throw new Error("Erreur : Ce Token n'a pas le droit d'ajouter des cours. La case 'repo' n'a pas été cochée sur GitHub.");
+            }
+
+            // Si ok et qu'on a les droits d'écriture, on sauvegarde
             localStorage.setItem('ghToken', token);
             checkLogin();
 
@@ -105,11 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- GitHub API Helpers ---
     const apiCall = async (endpoint, method = 'GET', body = null) => {
-        const owner = localStorage.getItem('ghOwner');
-        const repo = localStorage.getItem('ghRepo');
         const token = localStorage.getItem('ghToken');
 
-        const url = `https://api.github.com/repos/${owner}/${repo}${endpoint}`;
+        const url = `https://api.github.com/repos/${TARGET_OWNER}/${TARGET_REPO}${endpoint}`;
         const headers = {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/vnd.github.v3+json',
