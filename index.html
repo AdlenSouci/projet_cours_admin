@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Espace Pédagogique</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="admin-layout">
+
+    <!-- Header -->
+    <header class="glass-header">
+        <div class="container header-container">
+            <div class="logo">
+                <i data-lucide="shield-check" class="logo-icon"></i>
+                <span>Espace Professeur</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html">Retour au site</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container admin-container">
+
+        <!-- Login Section (GitHub Token) -->
+        <section id="loginSection" class="admin-card">
+            <h2><i data-lucide="key"></i> Connexion via GitHub</h2>
+            <p class="admin-desc">Pour mettre à jour le site directement, renseignez vos accès GitHub. Ces données
+                restent uniquement dans votre navigateur.</p>
+
+            <form id="loginForm" class="admin-form">
+                <div class="form-group">
+                    <label for="ghOwner">Propriétaire du dépôt (Ex: <i>votre-pseudo</i>)</label>
+                    <input type="text" id="ghOwner" required placeholder="octocat">
+                </div>
+                <div class="form-group">
+                    <label for="ghRepo">Nom du dépôt (Ex: <i>mon-site-cours</i>)</label>
+                    <input type="text" id="ghRepo" required placeholder="projet_cours">
+                </div>
+                <div class="form-group">
+                    <label for="ghToken">Token d'accès personnel GitHub (Classic avec droit 'repo')</label>
+                    <input type="password" id="ghToken" required placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                </div>
+                <button type="submit" class="btn btn-primary"><i data-lucide="log-in"></i> Configurer l'accès</button>
+            </form>
+        </section>
+
+        <!-- Upload Section (Hidden until logged in) -->
+        <section id="uploadSection" class="admin-card hidden">
+            <div class="upload-header">
+                <h2><i data-lucide="upload-cloud"></i> Ajouter un nouveau cours</h2>
+                <button id="logoutBtn" class="btn-text text-danger"><i data-lucide="log-out"></i> Déconnexion</button>
+            </div>
+
+            <form id="uploadForm" class="admin-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="courseTitle">Titre du cours</label>
+                        <input type="text" id="courseTitle" required placeholder="Ex: Les boucles en JavaScript">
+                    </div>
+                    <div class="form-group">
+                        <label for="courseType">Type de document</label>
+                        <select id="courseType" required>
+                            <option value="cours">Leçon / Cours</option>
+                            <option value="quiz">Quiz</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="courseDesc">Courte description</label>
+                    <textarea id="courseDesc" rows="3" required placeholder="De quoi parle ce cours ?"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="courseDuration">Durée estimée (optionnel)</label>
+                    <input type="text" id="courseDuration" placeholder="Ex: 45 min">
+                </div>
+
+                <div class="form-group file-upload-group">
+                    <label for="courseFile">Fichier HTML généré (par l'IA)</label>
+                    <div class="file-area">
+                        <i data-lucide="file-html" class="file-icon"></i>
+                        <input type="file" id="courseFile" accept=".html" required>
+                    </div>
+                </div>
+
+                <div id="uploadStatus" class="status-message hidden">
+                    <!-- Les messages de succès ou d'erreur s'afficheront ici -->
+                </div>
+
+                <button type="submit" id="submitCourseBtn" class="btn btn-primary btn-block">
+                    <i data-lucide="send"></i> Publier sur le site
+                </button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="./js/admin.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>
