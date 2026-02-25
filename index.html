@@ -99,8 +99,16 @@
                 <button type="submit" id="submitCourseBtn" class="btn btn-primary btn-block">
                     <i data-lucide="send"></i> Publier sur le site
                 </button>
-            </form>
-        </section>
+                <!-- Manage Section -->
+                <section id="manageSection" class="admin-card hidden" style="margin-top: 2rem;">
+                    <div class="upload-header">
+                        <h2><i data-lucide="list"></i> Gérer les cours existants</h2>
+                    </div>
+                    <div id="courseListContainer" class="course-list"
+                        style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div class="spinner-small" style="margin: 0 auto;"></div>
+                    </div>
+                </section>
 
     </main>
 

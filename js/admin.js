@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
     const loginSection = document.getElementById('loginSection');
     const uploadSection = document.getElementById('uploadSection');
+    const manageSection = document.getElementById('manageSection');
+    const courseListContainer = document.getElementById('courseListContainer');
     const loginForm = document.getElementById('loginForm');
     const uploadForm = document.getElementById('uploadForm');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -19,9 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (token) {
             loginSection.classList.add('hidden');
             uploadSection.classList.remove('hidden');
+            manageSection.classList.remove('hidden');
+            fetchCourses();
         } else {
             loginSection.classList.remove('hidden');
             uploadSection.classList.add('hidden');
+            manageSection.classList.add('hidden');
         }
     };
 
@@ -146,6 +151,105 @@ document.addEventListener('DOMContentLoaded', () => {
         statusMessage.classList.remove('hidden');
     };
 
+    // --- Manage Courses Logic ---
+    const fetchCourses = async () => {
+        if (!courseListContainer) return;
+        courseListContainer.innerHTML = '<div class="spinner-small" style="margin: 0 auto;"></div>';
+        try {
+            const jsonFile = await apiCall('/contents/data/cours.json');
+            if (!jsonFile || !jsonFile.content) {
+                courseListContainer.innerHTML = '<p class="text-center" style="color: var(--text-muted);">Aucun cours pour le moment.</p>';
+                return;
+            }
+            const decodedJson = decodeURIComponent(escape(atob(jsonFile.content)));
+            const courses = JSON.parse(decodedJson);
+
+            if (courses.length === 0) {
+                courseListContainer.innerHTML = '<p class="text-center" style="color: var(--text-muted);">Aucun cours pour le moment.</p>';
+                return;
+            }
+
+            courseListContainer.innerHTML = '';
+            courses.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'admin-card';
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.alignItems = 'center';
+                item.style.padding = '1rem';
+                item.style.marginBottom = '0.5rem';
+
+                item.innerHTML = `
+                    <div style="flex: 1;">
+                        <h4 style="margin-bottom: 0.25rem;">${c.title}</h4>
+                        <small style="color: var(--text-muted);">${c.type === 'quiz' ? 'Quiz' : 'Leçon'} • Ajouté le ${c.date}</small>
+                    </div>
+                    <button class="btn-text text-danger delete-btn" data-id="${c.id}" data-file="${c.file}">
+                        <i data-lucide="trash-2"></i> Supprimer
+                    </button>
+                `;
+                courseListContainer.appendChild(item);
+            });
+
+            if (window.lucide) lucide.createIcons();
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (confirm("Êtes-vous sûr de vouloir supprimer ce cours ? Cette action est irréversible et supprimera le fichier et son entrée dans le catalogue.")) {
+                        await deleteCourse(btn.dataset.id, btn.dataset.file, btn);
+                    }
+                });
+            });
+
+        } catch (error) {
+            console.error("Erreur fetchCourses:", error);
+            courseListContainer.innerHTML = `<p class="status-message error">Impossible de charger les cours : ${error.message}</p>`;
+        }
+    };
+
+    const deleteCourse = async (courseId, fileRelativePath, btnElement) => {
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = '<div class="spinner-small"></div>';
+        btnElement.disabled = true;
+
+        try {
+            // 1. Fetch current cours.json
+            const jsonFile = await apiCall('/contents/data/cours.json');
+            const decodedJson = decodeURIComponent(escape(atob(jsonFile.content)));
+            let courses = JSON.parse(decodedJson);
+
+            // 2. Filter out the course
+            courses = courses.filter(c => c.id !== courseId);
+
+            // 3. Update cours.json
+            const jsonString = JSON.stringify(courses, null, 2);
+            const jsonBase64 = btoa(unescape(encodeURIComponent(jsonString)));
+            await uploadFile('data/cours.json', jsonBase64, `[Admin] Suppression du cours ID: ${courseId}`, jsonFile.sha);
+
+            // 4. Try to delete the HTML file
+            try {
+                const cleanPath = fileRelativePath.startsWith('./') ? fileRelativePath.substring(2) : fileRelativePath;
+                const htmlFile = await apiCall(`/contents/${cleanPath}`);
+                if (htmlFile && htmlFile.sha) {
+                    await apiCall(`/contents/${cleanPath}`, 'DELETE', {
+                        message: `[Admin] Suppression du fichier HTML: ${cleanPath}`,
+                        sha: htmlFile.sha
+                    });
+                }
+            } catch (fileErr) {
+                console.warn("Fichier HTML ignoré (déjà supprimé ou introuvable):", fileErr);
+            }
+
+            fetchCourses();
+
+        } catch (error) {
+            console.error("Erreur deleteCourse:", error);
+            alert("Erreur lors de la suppression : " + error.message);
+            btnElement.innerHTML = originalText;
+            btnElement.disabled = false;
+        }
+    };
+
     // --- Form Submission ---
     uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -218,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Success
             setStatus("Succès ! Le cours a été publié sur le site.", false);
             uploadForm.reset();
+            fetchCourses();
 
         } catch (error) {
             console.error("Erreur Upload:", error);
