@@ -21,14 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (token) {
             loginSection.classList.add('hidden');
-            dashboardGrid.style.display = window.innerWidth >= 900 ? 'grid' : 'flex';
-            dashboardGrid.style.flexDirection = 'column'; // Fallback mobile
+            dashboardGrid.style.display = ''; // Retire le display inline
             dashboardGrid.classList.remove('hidden');
             fetchCourses();
         } else {
             loginSection.classList.remove('hidden');
             dashboardGrid.classList.add('hidden');
-            dashboardGrid.style.display = 'none';
         }
     };
 
